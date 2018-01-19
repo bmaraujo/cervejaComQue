@@ -1,0 +1,16 @@
+{
+	"lojas" : [
+		{
+		"nome" : "Mamãe Bebidas",
+		"endereco" : "Av. do Contorno, 1955, Santa Teresa",
+		"cidade" : "Belo Horizonte",
+		"estado" : "Minas Gerais"
+		},
+		{
+		"nome" : "Tonel Bebidas",
+		"endereco" : "Rua Major Lopes, 400, São Pedro",
+		"cidade" : "Belo Horizonte",
+		"estado" : "Minas Gerais"
+		}
+	]
+}

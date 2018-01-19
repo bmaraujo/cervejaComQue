@@ -1,0 +1,261 @@
+{
+	"estilos" : [
+		
+			{
+				"nome" : "IPA" ,
+				"descricao" : "Indian Pale Ale",
+				"maisInfo" : "",
+				"minTeorA" : "5.1",
+				"maxTeorA" : "7.6",
+				"minIBU" : "40",
+				"maxIBU" : "60",
+				"minSRM" : "8",
+				"maxSRM" : "14",
+				"comidas" : ["Carne Assada","Carne com Chili","Chouriço","Guacamole","Enchiladas","Empanadas","Filet Mignon au poivre com batatas au gratin","Falafel", "Hamburguer", "Nachos","Pato au Poivre", "Pizza Calabresa", "Salmão", "Churrasco"]
+			},
+			{
+				"nome" : "APA",
+				"descricao" : "American Pale Ale",
+				"maisInfo" : "",
+				"minTeorA" : "4.5",
+				"maxTeorA" : "5.7",
+				"minIBU" : "20",
+				"maxIBU" : "40",
+				"minSRM" : "4",
+				"maxSRM" : "11",
+				"comidas" : ["Guacamole","Amêndoas Salgadas","Atum", "Burritos", "Carne Assada", "Carne com Chili", "Carpaccio", "Chouriço", "Cuscuz", "Enchiladas", "Empanadas", "Frango Assado", "Hamburguer", "Lula Frita", "Nachos", "Pato au Poivre","Pizza Calabresa", "Rocambole de Carne"]
+			},
+			{
+				"nome" : "Stout",
+				"descricao" : "Imperial Stout",
+				"maisInfo" : "",
+				"minTeorA" : "5.5",
+				"maxTeorA" : "9.5",
+				"minIBU" : "45",
+				"maxIBU" : "65",
+				"minSRM" : "20",
+				"maxSRM" : "36",
+				"comidas" : ["Sobremesa a base de chocolate","Petit Gateau", "Brigadeiro", "Ostras","Frango Grelhado", "Bife Grelhado", "Feijoada", "Queijo Gorgonzola", "Queijo Reblochon", "Queijo Pont-l'évêque"]
+			},
+
+			{
+				"nome" : "Pilsen",
+				"descricao" : "Pilsen bohemia",
+				"maisInfo" : "",
+				"minTeorA" : "4.1",
+				"maxTeorA" : "5.1",
+				"minIBU" : "30",
+				"maxIBU" : "45",
+				"minSRM" : "3",
+				"maxSRM" : "6",
+				"comidas" : ["Anchovas", "Bacalhau", "Camarão", "Caranguejo", "Caviar","Empanadas", "Escargot", "Falafel","Lagosta", "Lula Frita", "Mexilhões", "Pizza Mussarela", "Pizza Marguerita", "Salada de Folhas Verdes","Salame", "Salmão", "Salmão defumado", "Sardinha", "Caldo de Piranha", "Sopa de Legumes", "Sopa Minestrone"]
+			},
+
+			{
+				"nome" : "Red Ale",
+				"descricao" : "Irish Red Ale",
+				"maisInfo" : "",
+				"minTeorA" : "4.1",
+				"maxTeorA" : "4.6",
+				"minIBU" : "20",
+				"maxIBU" : "28",
+				"minSRM" : "11",
+				"maxSRM" : "18",
+				"comidas" : ["Burritos", "Carne Assada", "Carpaccio"]
+			},
+
+			{
+				"nome" : "Brown Ale",
+				"descricao" : "Brown Ale",
+				"maisInfo" : "",
+				"minTeorA" : "4.2",
+				"maxTeorA" : "6",
+				"minIBU" : "20",
+				"maxIBU" : "30",
+				"minSRM" : "20",
+				"maxSRM" : "35",
+				"comidas" : ["Goulash", "Cordeiro Grelhado", "Feijoada", "Hummus", "Lentilha", "Nozes", "Rabada", "Picanha"]
+			},
+
+			{
+				"nome" : "Dubbel",
+				"descricao" : "Dubbel",
+				"maisInfo" : "",
+				"minTeorA" : "3.2",
+				"maxTeorA" : "8",
+				"minIBU" : "20",
+				"maxIBU" : "25",
+				"minSRM" : "10",
+				"maxSRM" : "20",
+				"comidas" : ["Azeitonas", "Bife Grelhado", "Carne de Panela", "Carne Suína Assada"]
+			},
+
+			{
+				"nome" : "Tripel",
+				"descricao" : "Tripel",
+				"maisInfo" : "",
+				"minTeorA" : "7",
+				"maxTeorA" : "10",
+				"minIBU" : "20",
+				"maxIBU" : "30",
+				"minSRM" : "4",
+				"maxSRM" : "7",
+				"comidas" : ["Avestruz", "Azeitonas", "Codorna", "Coelho", "Massa ao molho Carbonara", "Polvo"]
+			},
+
+			{
+				"nome" : "Summer Ale",
+				"descricao" : "Summer Ale",
+				"maisInfo" : "",
+				"minTeorA" : "3.7",
+				"maxTeorA" : "5.1",
+				"minIBU" : "20",
+				"maxIBU" : "30",
+				"minSRM" : "3",
+				"maxSRM" : "7",
+				"comidas" : ["Frutos do mar", "Salada"]
+			},
+
+			{
+				"nome" : "Bock",
+				"descricao" : "Bock tradicional alemã",
+				"maisInfo" : "",
+				"minTeorA" : "6.4",
+				"maxTeorA" : "7.6",
+				"minIBU" : "20",
+				"maxIBU" : "30",
+				"minSRM" : "15",
+				"maxSRM" : "30",
+				"comidas" : ["Hummus" ,"Frango Assado", "Tamboril"]
+			},
+
+			{
+				"nome" : "Weizenbier",
+				"descricao" : "Weizenbier",
+				"maisInfo" : "",
+				"minTeorA" : "4.3",
+				"maxTeorA" : "5.6",
+				"minIBU" : "8",
+				"maxIBU" : "15",
+				"minSRM" : "3",
+				"maxSRM" : "9",
+				"comidas" : ["Salada de Atum", "Atum", "Banana","Salada de Beterraba", "Bolinho de Bacalhau","Camarão","Caranguejo", "Salada Ceasar", "Cuscuz", "Enguia Defumada","Haddock Assado","Hummus", "Lagosta", "Lagostin", "Massa ao molho de Frutos do mar", "Melão", "Mexilhões", "Milho Cozido","Ovos com Bacon", "Omelete ou Ovos mexidos", "Pato Assado", "Polvo", "Quiche de Queijo", "Risoto de Frutos do Mar"]
+			},
+
+			{
+				"nome" : "Amber Ale",
+				"descricao" : "Amber Ale",
+				"maisInfo" : "",
+				"minTeorA" : "4.5",
+				"maxTeorA" : "5.7",
+				"minIBU" : "20",
+				"maxIBU" : "40",
+				"minSRM" : "11",
+				"maxSRM" : "18",
+				"comidas" : ["Bacalhau","Bife Grelhado","Cordeiro Grelhado","Frango Assado", "Frango a Passarinho", "Kebab de Carne"]
+			},
+			{
+				"nome" : "Dunkel" ,
+				"descricao" : "Dunkel",
+				"maisInfo" : "",
+				"minTeorA" : "4.8",
+				"maxTeorA" : "5.4",
+				"minIBU" : "16",
+				"maxIBU" : "25",
+				"minSRM" : "17",
+				"maxSRM" : "23",
+				"comidas" : ["Feijoada","Carnes Nobres", "Peixes com sabores intensos", "Comida chinesa"]
+			},
+
+			{
+				"nome" : "Golden Ale",
+				"descricao" : "Golden Ale ou Blonde Ale",
+				"maisInfo" : "",
+				"minTeorA" : "7",
+				"maxTeorA" : "9",
+				"minIBU" : "25",
+				"maxIBU" : "35",
+				"minSRM" : "4",
+				"maxSRM" : "6",
+				"comidas" : ["Carnes de Caça", "Comida mexicana", "Comida Indiana","Salada de Beterraba"]
+			},
+
+			{
+				"nome" : "Porter" ,
+				"descricao" : "Brown Porter",
+				"maisInfo" : "",
+				"minTeorA" : "3.8",
+				"maxTeorA" : "5.2",
+				"minIBU" : "20",
+				"maxIBU" : "30",
+				"minSRM" : "20",
+				"maxSRM" : "35",
+				"comidas" : ["Carneiro"]
+			},
+
+			{
+				"nome" : "Saison",
+				"descricao" : "Saison",
+				"maisInfo" : "",
+				"minTeorA" : "4.5",
+				"maxTeorA" : "8.1",
+				"minIBU" : "25",
+				"maxIBU" : "40",
+				"minSRM" : "4",
+				"maxSRM" : "10",
+				"comidas" : ["Atum", "Camarão","Caranguejo","Chouriço","Empanadas","Falafel", "Lula Frita", "Pato Au Poivre", "Salame", "Salmão", "Salmão defumado", "Salsichas", "Sardinha", "Vitela"]
+			},
+
+			{
+				"nome" : "Viena Lager",
+				"descricao" : "Viena Lager",
+				"maisInfo" : "",
+				"minTeorA" : "4.8",
+				"maxTeorA" : "5.4",
+				"minIBU" : "22",
+				"maxIBU" : "28",
+				"minSRM" : "10",
+				"maxSRM" : "18",
+				"comidas" : ["Risoto de Funghi", "Sopa Minestrone", "Tradicional almoço brasileiro com arroz, feijão e bife"]
+			},
+
+			{
+				"nome" : "Fruit Beer",
+				"descricao" : "Fruit Beer",
+				"maisInfo" : "",
+				"minTeorA" : "4.7",
+				"maxTeorA" : "7",
+				"minIBU" : "15",
+				"maxIBU" : "21",
+				"minSRM" : "0",
+				"maxSRM" : "99",
+				"comidas" : ["Cheesecake", "Chocolate", "Creme Bruleé", "Melão", "Panna Cotta", "Pato com Laranja", "Sorvete", "Trufa de Chocolate"]
+			},
+
+			{
+				"nome" : "Sour Ale",
+				"descricao" : "Sour Ale",
+				"maisInfo" : "",
+				"minTeorA" : "0",
+				"maxTeorA" : "0",
+				"minIBU" : "0",
+				"maxIBU" : "0",
+				"minSRM" : "0",
+				"maxSRM" : "0",
+				"comidas" : ["Salmão defumado"]
+			},
+
+			{
+				"nome" : "Witbier",
+				"descricao" : "Witbier",
+				"maisInfo" : "",
+				"minTeorA" : "4.8",
+				"maxTeorA" : "5.6",
+				"minIBU" : "10",
+				"maxIBU" : "17",
+				"minSRM" : "2",
+				"maxSRM" : "4",
+				"comidas" : ["Dourado Assado", "Surubim na Brasa"]
+			}
+	]
+}

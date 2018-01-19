@@ -1,0 +1,28 @@
+function define(name, value) {
+    Object.defineProperty(exports, name, {
+        value:      value,
+        enumerable: true
+    });
+};
+
+define('ACK','ACK');
+define('FIM_FRASE','FIM_FRASE');
+define('FALLBACK','FALLBACK');
+define('FALLBACK_FINISH','FALLBACK_FINISH');
+define('ABOUT','ABOUT');
+define('SUGERIR_LOJA','SUGERIR_LOJA');
+define('SUGGESTION_ACCEPTED','SUGGESTION_ACCEPTED');
+define('ASK_BITTER','ASK_BITTER');
+define('ASK_ALCOHOLIC','ASK_ALCOHOLIC');
+define('ASK_COLOR','ASK_COLOR');
+define('HC_FIRST_STYLE_SUGGEST','HC_FIRST_STYLE_SUGGEST');
+define('HC_FOLLOWING_STYLE_SUGGEST','HC_FOLLOWING_STYLE_SUGGEST');
+define('FIRST_FOOD_SUGGESTIONS','FIRST_FOOD_SUGGESTIONS');
+define('FIRST_STYLE_SUGGESTONS','FIRST_STYLE_SUGGESTONS');
+define('SECOND_SUGGESTIONS','SECOND_SUGGESTIONS');
+define('NO_SUGGESTIONS','NO_SUGGESTIONS');
+define('WELCOME','WELCOME');
+define('WELCOME_BACK','WELCOME_BACK');
+define('PERMISSION','PERMISSION');
+define('NON_PERM_ENDING','NON_PERM_ENDING');
+define('PERM_ENDING','PERM_ENDING');
