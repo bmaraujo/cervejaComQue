@@ -33,6 +33,7 @@ const HC_1st_SUGGEST = dialogs[constDialogs.HC_FIRST_STYLE_SUGGEST];
 const HC_FOLLOW_SUGGEST = dialogs[constDialogs.HC_FOLLOWING_STYLE_SUGGEST];
 const WELCOME = dialogs[constDialogs.WELCOME];
 const WELCOME_BACK=dialogs[constDialogs.WELCOME_BACK];
+const WELCOME_BACK_NOPERM=dialogs[constDialogs.WELCOME_BACK_NOPERM];
 const PERMISSION = dialogs[constDialogs.PERMISSION];
 const NON_PERM_ENDING = dialogs[constDialogs.NON_PERM_ENDING];
 const PERM_ENDING = dialogs[constDialogs.PERM_ENDING];
@@ -61,7 +62,7 @@ var _firebaseApp;
 
 // Set the configuration for the database
 var config = {
-	apiKey: "",
+	apiKey: "AIzaSyBExfsoVA_qyxUzJQj64C3ZPqBvBG6PLpk",
 	authDomain: "cervejacomque.firebaseapp.com",
 	databaseURL: "https://cervejacomque.firebaseio.com/",
 	storageBucket: "cervejacomque.appspot.com"
@@ -541,38 +542,56 @@ class CervejaComQue{
  	welcome(app){
  		let welcomePhrase = "";
 
- 		if(!_firebaseApp){
+ 		let sugChips = ['Harmonizar Cerveja', 'Me ajude a escolher'];
 
- 			_firebaseApp = firebase.initializeApp(config);
+ 		if(app.getUser().lastSeen){
+
+ 			if(!_firebaseApp){
+
+	 			_firebaseApp = firebase.initializeApp(config);
+	 		}
+
+			firebase.auth().signInWithEmailAndPassword('bruno.mourao.araujo@gmail.com','teste123').catch(function(error) {
+				// Handle Errors here.
+				var errorCode = error.code;
+				var errorMessage = error.message;
+
+				console.log('##### Error authenticating:' + errorCode + ' - ' + errorMessage);
+			});
+
+			console.log('-------- Firebase inicializado');
+
+			// Get a reference to the database service
+			let database = _firebaseApp.database();
+
+			let userId = app.getUser().userId;
+
+			console.log('userId:' + userId);
+
+			database.ref('/users/' + userId).once('value').then(function(snapshot){
+				userName = (snapshot.val() && snapshot.val().name);
+				if (userName) {
+		 			welcomePhrase = welcomePhrase = getRandomEntry(WELCOME_BACK).replace("$1",userName);
+		 		}
+		 		else{
+		 			welcomePhrase = getRandomEntry(WELCOME_BACK_NOPERM);
+		 		}
+		 		app.ask(app.buildRichResponse()
+		 			.addSimpleResponse('<speak>' + welcomePhrase + '</speak>')
+		 			.addSuggestions(sugChips)
+		 			);
+		 		
+			}); 
+
  		}
-
-		firebase.auth().signInWithEmailAndPassword('bruno.mourao.araujo@gmail.com','teste123').catch(function(error) {
-			// Handle Errors here.
-			var errorCode = error.code;
-			var errorMessage = error.message;
-
-			console.log('##### Error authenticating:' + errorCode + ' - ' + errorMessage);
-		});
-
-		console.log('-------- Firebase inicializado');
-
-		// Get a reference to the database service
-		let database = _firebaseApp.database();
-
-		let userId = app.getUser().userId;
-
-		console.log('userId:' + userId);
-
-		database.ref('/users/' + userId).once('value').then(function(snapshot){
-			userName = (snapshot.val() && snapshot.val().name);
-			if (userName) {
-	 			welcomePhrase = welcomePhrase = getRandomEntry(WELCOME_BACK).replace("$1",userName);
-	 		}
-	 		else{
-	 			welcomePhrase = getRandomEntry(WELCOME);
-	 		}
-	 		app.ask('<speak>' + welcomePhrase + '</speak>');
-		}); 		
+ 		else{
+ 			welcomePhrase = getRandomEntry(WELCOME);
+ 			app.ask(app.buildRichResponse()
+		 			.addSimpleResponse('<speak>' + welcomePhrase + '</speak>')
+		 			.addSuggestions(sugChips)
+		 			);
+ 		}
+ 				
  	}
 
  	finishApp(){
