@@ -325,8 +325,13 @@ class CervejaComQue{
  		let _bitterness = _app.getArgument(BITTERNESS);
 
  		if(!_bitterness && !_color && !_alcoholicVol){
-	 		
-	 		_app.ask(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER) + FIM_CONVERSA);
+
+ 			let sugChips = ['mais','menos','tanto faz'];
+
+	 		_app.ask(_app.buildRichResponse()
+		 			.addSimpleResponse(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER) + FIM_CONVERSA)
+		 			.addSuggestions(sugChips)
+		 			);
 	 	}
 	 	else{// this is the case where the user said the whole phrase
 
@@ -354,7 +359,9 @@ class CervejaComQue{
 
 		_app.data.ibu = ibu;
 
-		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC);
+		let sugChips = ['mais','menos','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 		
  	}
 
@@ -373,7 +380,9 @@ class CervejaComQue{
 
 		_app.data.ibu = ibu;
 
-		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC);
+		let sugChips = ['mais','menos','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 
  	}
 
@@ -382,7 +391,9 @@ class CervejaComQue{
 
  		this.resetFallbackCount();
 
-		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC);
+ 		let sugChips = ['mais','menos','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 
  	}
 
@@ -402,7 +413,9 @@ class CervejaComQue{
 		console.log('new teora:' + teora);
 		_app.data.teorA = teora;
 
-		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR);
+		let sugChips = ['clara','escura','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
 		
  	}
 
@@ -423,7 +436,9 @@ class CervejaComQue{
 
 		_app.data.teorA = teora;
 
-		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR);
+		let sugChips = ['clara','escura','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
  	}
 
  	helpChooseStp3TantoFaz(){
@@ -432,7 +447,9 @@ class CervejaComQue{
 
 		//no filter needed
 
-		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR);
+		let sugChips = ['clara','escura','tanto faz'];
+
+		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
 
  	}
 
@@ -453,7 +470,7 @@ class CervejaComQue{
 
 		_app.data.srm = color;
 
-		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined);
+		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined,undefined);
 
 		this.helpChoose1stSuggestion();
  	}
@@ -476,7 +493,7 @@ class CervejaComQue{
 
 		_app.data.srm = color;
 
-		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined);
+		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined, undefined);
 
 		this.helpChoose1stSuggestion();
  	}
@@ -487,7 +504,7 @@ class CervejaComQue{
 
 		//no filter needed
 
-		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined);
+		this.helpChooseFinishStep(contexts.CTX_COLOR,contexts.CTX_ALCOHOLIC_LVL,undefined, undefined);
 
 		this.helpChoose1stSuggestion();
 
@@ -725,7 +742,7 @@ class CervejaComQue{
 	/*
 		Update the list, set and/or remove the context and ask next question
 	*/
-	helpChooseFinishStep(newContext,removeContext,nextQuestionArr){
+	helpChooseFinishStep(newContext,removeContext,nextQuestionArr, sugChips){
 
 		//set the new context
 		_app.setContext(newContext,2);
@@ -736,7 +753,10 @@ class CervejaComQue{
 		}
 		if(nextQuestionArr){
 			//ask next question
-			this.ask(getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr));
+	 		_app.ask(_app.buildRichResponse()
+		 			.addSimpleResponse(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr) + FIM_CONVERSA)
+		 			.addSuggestions(sugChips)
+		 			);
 		}
 	}
 
