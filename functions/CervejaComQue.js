@@ -33,6 +33,7 @@ const HC_1st_SUGGEST = dialogs[constDialogs.HC_FIRST_STYLE_SUGGEST];
 const HC_FOLLOW_SUGGEST = dialogs[constDialogs.HC_FOLLOWING_STYLE_SUGGEST];
 const WELCOME = dialogs[constDialogs.WELCOME];
 const WELCOME_BACK=dialogs[constDialogs.WELCOME_BACK];
+const WELCOME_BACK_NOPERM=dialogs[constDialogs.WELCOME_BACK_NOPERM];
 const PERMISSION = dialogs[constDialogs.PERMISSION];
 const NON_PERM_ENDING = dialogs[constDialogs.NON_PERM_ENDING];
 const PERM_ENDING = dialogs[constDialogs.PERM_ENDING];
@@ -573,7 +574,7 @@ class CervejaComQue{
 		 			welcomePhrase = welcomePhrase = getRandomEntry(WELCOME_BACK).replace("$1",userName);
 		 		}
 		 		else{
-		 			welcomePhrase = getRandomEntry(WELCOME);
+		 			welcomePhrase = getRandomEntry(WELCOME_BACK_NOPERM);
 		 		}
 		 		app.ask(app.buildRichResponse()
 		 			.addSimpleResponse('<speak>' + welcomePhrase + '</speak>')
