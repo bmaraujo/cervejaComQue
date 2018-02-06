@@ -4,3 +4,4 @@ firebase.json
 package-lock.json
 .DS_Store
 notes.txt
+functions/firebase-debug.log
