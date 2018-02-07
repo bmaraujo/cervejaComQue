@@ -110,6 +110,16 @@ function getEstilosByFood(food){
 		return estilos;
 	}
 
+//This is only for common settings the whole response, like prosody, you still need to add breaks, sentences, etc before calling this method
+function buildSpeech(message){
+	let speech = '<speak>';
+	speech += '<prosody rate="medium" pitch="medium" volume="medium">';
+	speech += message;
+	speech += '</prosody>';
+	speech += '</speak>';
+	return speech
+}
+
 class CervejaComQue{
 
 
@@ -229,14 +239,14 @@ class CervejaComQue{
 
  			_app.data.consecutiveFallbacks = ++consecutiveFallbacks;
  			//Fallback
- 			_app.ask(getRandomEntry(FALLBACK));
+ 			_app.ask(buildSpeech(getRandomEntry(FALLBACK)));
 
  			console.log("consecutiveFallbacks:" + consecutiveFallbacks);
  		}
  		else{
  			_app.data.consecutiveFallbacks = 0;
 
-			let finishSpeech = getRandomEntry(FALLBACK_FINISH);
+			let finishSpeech = buildSpeech(getRandomEntry(FALLBACK_FINISH));
 
 			let richResponse = this.buildCardWithButton('Sites com harmonização de cervejas','Harmonização de Cervejas',
 				'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
@@ -251,7 +261,7 @@ class CervejaComQue{
 
  	about(){
  		this.resetFallbackCount();
- 		this.ask(getRandomEntry(ABOUT));
+ 		this.ask(buildSpeech(getRandomEntry(ABOUT)));
 
  	}
 
@@ -263,7 +273,7 @@ class CervejaComQue{
  			this.requestPermission(app);
  		}
  		else{
- 			app.tell(getRandomEntry(SUGGESTION_ACCEPTED).replace("$1",userName));
+ 			this.finishApp();
  		}
  	}
 
@@ -280,7 +290,7 @@ class CervejaComQue{
 		}
 		else{
 			//No permission was granted, so just finish
-			app.tell(getRandomEntry(NON_PERM_ENDING));
+			app.tell(buildSpeech(getRandomEntry(NON_PERM_ENDING)));
 		}
 	}
 
@@ -329,7 +339,7 @@ class CervejaComQue{
  			let sugChips = ['mais','menos','tanto faz'];
 
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER) + FIM_CONVERSA)
+		 			.addSimpleResponse(buildSpeech(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER) + FIM_CONVERSA))
 		 			.addSuggestions(sugChips)
 		 			);
 	 	}
@@ -540,10 +550,10 @@ class CervejaComQue{
 	 		_app.data.estilo = estiloObj.nome;
 	 		_app.data.list = newList;
 
-	 		this.ask(getRandomEntry(ACK) +  getRandomEntry(HC_FOLLOW_SUGGEST).replace('$1',estiloObj.nome));
+	 		this.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_FOLLOW_SUGGEST).replace('$1',estiloObj.nome)));
 	 	}
 	 	else{
-	 		let resposta = getRandomEntry(NO_SUGGESTION);
+	 		let resposta = buildSpeech(getRandomEntry(NO_SUGGESTION));
 	 		resposta = this.buildCardWithButton('Sites com harmonização de cervejas','Harmonização de Cervejas',
 				'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
 				'imagem de 4 pequenos copos de cerveja de estilos diferentes, com um mini prato com diferentes comidas em frente a cada um, em cima de uma tábua de madeira.',
@@ -588,13 +598,13 @@ class CervejaComQue{
 			database.ref('/users/' + userId).once('value').then(function(snapshot){
 				userName = (snapshot.val() && snapshot.val().name);
 				if (userName) {
-		 			welcomePhrase = welcomePhrase = getRandomEntry(WELCOME_BACK).replace("$1",userName);
+		 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK).replace("$1",userName));
 		 		}
 		 		else{
-		 			welcomePhrase = getRandomEntry(WELCOME_BACK_NOPERM);
+		 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK_NOPERM));
 		 		}
 		 		app.ask(app.buildRichResponse()
-		 			.addSimpleResponse('<speak>' + welcomePhrase + '</speak>')
+		 			.addSimpleResponse({speech:welcomePhrase})
 		 			.addSuggestions(sugChips)
 		 			);
 		 		
@@ -602,9 +612,9 @@ class CervejaComQue{
 
  		}
  		else{
- 			welcomePhrase = getRandomEntry(WELCOME);
+ 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME));
  			app.ask(app.buildRichResponse()
-		 			.addSimpleResponse('<speak>' + welcomePhrase + '</speak>')
+		 			.addSimpleResponse({speech:welcomePhrase})
 		 			.addSuggestions(sugChips)
 		 			);
  		}
@@ -614,17 +624,17 @@ class CervejaComQue{
  	finishApp(){
 		//check if the user has already granted permission to save his info
 		if(userName){
-			_app.tell(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',userName) + FIM_CONVERSA);
+			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',userName)));
 		}
 		else{
 			//ask user for permission
 			// requestPermission(app);
-			_app.tell(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING) + FIM_CONVERSA);
+			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING)));
 		}
 	}
 
 	ask(message){
-		_app.ask('<speak>' + message + '</speak>');
+		_app.ask(buildSpeech(message));
 	}
 
   	
@@ -635,7 +645,7 @@ class CervejaComQue{
 		console.log("Suggestions----: " + arrSuggest);
 
 
-		let resposta = getRandomEntry(NO_SUGGESTION);
+		let resposta = buildSpeech(getRandomEntry(NO_SUGGESTION));
 
 		let refused;
 		let refusedAny = false;
@@ -681,10 +691,10 @@ class CervejaComQue{
 			console.log('##### refusedAny? ' + refusedAny);
 			let suggestion = getRandomEntry(suggestions);
 			if(!refusedAny){//this is the first suggestion
-				resposta =  getRandomEntry(ACK) + getRandomEntry(FIRST_SUGGESTIONS).replace('$1',userInput).replace('$2',suggestion) + getRandomEntry(FIM_FRASE);	
+				resposta =  buildSpeech(getRandomEntry(ACK) + getRandomEntry(FIRST_SUGGESTIONS).replace('$1',userInput).replace('$2',suggestion) + getRandomEntry(FIM_FRASE));	
 			}
 			else{//this is the following suggestions
-				resposta =  getRandomEntry(ACK) + getRandomEntry(SECOND_SUGGESTIONS).replace('$2',suggestion) + getRandomEntry(FIM_FRASE);
+				resposta =  buildSpeech(getRandomEntry(ACK) + getRandomEntry(SECOND_SUGGESTIONS).replace('$2',suggestion) + getRandomEntry(FIM_FRASE));
 			}
 			
 			//keeps track of what food was already suggested
@@ -754,7 +764,7 @@ class CervejaComQue{
 		if(nextQuestionArr){
 			//ask next question
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr) + FIM_CONVERSA)
+		 			.addSimpleResponse(buildSpeech(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr) + FIM_CONVERSA))
 		 			.addSuggestions(sugChips)
 		 			);
 		}
@@ -797,7 +807,7 @@ class CervejaComQue{
 
 			console.log("estilo sugerido:" + JSON.stringify(estilo));
 
-			this.ask(getRandomEntry(ACK) +  getRandomEntry(HC_1st_SUGGEST).replace('$1',estilo.nome));
+			this.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_1st_SUGGEST).replace('$1',estilo.nome)));
 
 	 	}
 
