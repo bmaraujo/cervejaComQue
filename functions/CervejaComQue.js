@@ -94,7 +94,8 @@ function getEstilo(estilo){
 
 function getEstilosByFood(food){
 		console.log('getEstilosByFood ===================' + food);
-		let estilos = [];readJsonFile(HARM_JSON_FILE);
+		let estilos = [];
+		var harmoniza = readJsonFile(HARM_JSON_FILE);
 		for(var i=0, maxEstilos = harmoniza.estilos.length; i< maxEstilos; i++){
 			console.log("Estilo: " + harmoniza.estilos[i].nome + ': ' + harmoniza.estilos[i].comidas);
 			for(var j=0, maxComidas = harmoniza.estilos[i].comidas.length;  j<maxComidas; j++){
@@ -279,7 +280,7 @@ class CervejaComQue{
 
  	requestPermission (app) {
  		console.log('Pedindo permissão');
-	 	app.askForPermission("Se você quiser, eu posso lembrar de você na próxima vez. Para isto", app.SupportedPermissions.NAME);
+	 	app.askForPermission(getRandomEntry(PERMISSION), app.SupportedPermissions.NAME);
 	}
 
 	handlePermission(app){
@@ -290,7 +291,7 @@ class CervejaComQue{
 		}
 		else{
 			//No permission was granted, so just finish
-			app.tell(buildSpeech(getRandomEntry(NON_PERM_ENDING)));
+			app.tell(buildSpeech(getRandomEntry(ACK) + getRandomEntry(NON_PERM_ENDING)));
 		}
 	}
 
