@@ -572,6 +572,8 @@ class CervejaComQue{
 
  		let sugChips = ['Harmonizar Cerveja', 'Me ajude a escolher'];
 
+ 		app.setContext('bemvindo',1); //This context is required to enter cervejacomq.searchHarmonization
+
  		if(app.getUser().lastSeen){
 
  			if(!_firebaseApp){
