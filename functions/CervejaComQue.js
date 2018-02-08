@@ -114,7 +114,7 @@ function getEstilosByFood(food){
 //This is only for common settings the whole response, like prosody, you still need to add breaks, sentences, etc before calling this method
 function buildSpeech(message){
 	let speech = '<speak>';
-	speech += '<prosody rate="medium" pitch="medium" volume="medium">';
+	speech += '<prosody rate="medium" pitch="+1st" volume="medium">';
 	speech += message;
 	speech += '</prosody>';
 	speech += '</speak>';
