@@ -719,7 +719,13 @@ class CervejaComQue{
 				console.log('________ Comidas sugeridas: ' + _app.data.comidas_sugeridas);
 			}
 			_app.setContext(contexts.CTX_SUGGESTED,5);
-			this.ask(resposta); // this is called when suggesting food, we wait for the user reply (yes or no)
+
+			let sugChips = ['Delícia','Tem outra coisa?'];
+
+			_app.ask(_app.buildRichResponse()
+		 			.addSimpleResponse(resposta)
+		 			.addSuggestions(sugChips)
+		 			); // this is called when suggesting food, we wait for the user reply (yes or no)
 		}
 
 		resposta = this.buildCardWithButton('Sites com harmonização de cervejas','Harmonização de Cervejas',
