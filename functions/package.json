@@ -2,7 +2,7 @@
   "name": "silly-name-maker",
   "description": "Find out your silly name!",
   "version": "0.0.1",
-  "author": "Google Inc.",
+  "author": "Bruno Araújo",
   "engines": {
     "node": "~4.2"
   },
