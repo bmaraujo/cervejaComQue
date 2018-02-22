@@ -5,3 +5,4 @@ package-lock.json
 .DS_Store
 notes.txt
 functions/firebase-debug.log
+functions/config.js
