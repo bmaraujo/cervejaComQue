@@ -2,12 +2,15 @@
 const fs = require('fs');
 
 
-var dialogs = JSON.parse(fs.readFileSync('dialogs.json', 'utf8'));
+var dialogs = JSON.parse(fs.readFileSync('./dialogs.json', 'utf8'));
 
 //import action constants
 const actions = require('./actions');
 const contexts = require('./contexts');
 const constDialogs = require('./dialogs');
+const suggestChips = require('./suggestionsChips');
+const configFile = require('./config');
+const entities = require('./entities');
 const firebase = require('firebase');
 
 // parameters
@@ -47,8 +50,6 @@ const FIRST_STYLE_SUGGESTONS = dialogs[constDialogs.FIRST_STYLE_SUGGESTONS];
 
 const SECOND_SUGGESTIONS = dialogs[constDialogs.SECOND_SUGGESTIONS];
 const NO_SUGGESTION = dialogs[constDialogs.NO_SUGGESTIONS];
-const INICIO_CONVERSA = '<speak>';
-const FIM_CONVERSA = '</speak>';
 
 const MAX_FALLBACKS = 3;
 
@@ -61,8 +62,8 @@ var _app;
 var _firebaseApp;
 
 // Set the configuration for the database
-var config = {
-	apiKey: "AIzaSyBExfsoVA_qyxUzJQj64C3ZPqBvBG6PLpk",
+const config = {
+	apiKey: configFile.API_KEY,
 	authDomain: "cervejacomque.firebaseapp.com",
 	databaseURL: "https://cervejacomque.firebaseio.com/",
 	storageBucket: "cervejacomque.appspot.com"
@@ -79,13 +80,9 @@ function getRandomEntry(arr){
 	}
 
 function getEstilo(estilo){
-		console.log('arquivo:' + HARM_JSON_FILE)
 		var harmoniza = readJsonFile(HARM_JSON_FILE);
 		for(var i=0, maxEstilos = harmoniza.estilos.length; i< maxEstilos; i++){
-			
-			console.log(harmoniza.estilos[i]);
 			if (harmoniza.estilos[i].nome === estilo) {
-				console.log(harmoniza.estilos[i]);
 				return harmoniza.estilos[i];
 			}
 		}
@@ -93,16 +90,12 @@ function getEstilo(estilo){
 	}
 
 function getEstilosByFood(food){
-		console.log('getEstilosByFood ===================' + food);
 		let estilos = [];
 		var harmoniza = readJsonFile(HARM_JSON_FILE);
 		for(var i=0, maxEstilos = harmoniza.estilos.length; i< maxEstilos; i++){
-			console.log("Estilo: " + harmoniza.estilos[i].nome + ': ' + harmoniza.estilos[i].comidas);
 			for(var j=0, maxComidas = harmoniza.estilos[i].comidas.length;  j<maxComidas; j++){
 				let comida = harmoniza.estilos[i].comidas[j];
-				console.log(comida + ' === ' + food + '? ' +(comida.toLowerCase() === food.toLowerCase()));
 				if (comida.toLowerCase() === food.toLowerCase()) {
-					console.log(harmoniza.estilos[i].nome);
 					estilos.push(harmoniza.estilos[i].nome);
 				}
 			}
@@ -159,8 +152,6 @@ class CervejaComQue{
 
 	  	actionMap.set("handlePermission", this.handlePermission.bind(this));
 
-	  	console.log(app.getIntent());
-
 	  	_app.handleRequest(actionMap);
 	}
 
@@ -201,8 +192,6 @@ class CervejaComQue{
 
  		this.resetFallbackCount();
 
- 		console.log('PROCURAR CERVEJA **********');
-
  		let food = _app.getArgument(COMIDA);
 
  		//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
@@ -212,11 +201,7 @@ class CervejaComQue{
 
  		_app.data.food = food;
 
- 		console.log('Comida: ' + food);
-
  		let estilos = getEstilosByFood(food);
-
- 		console.log('Estilos: ' + estilos);
 
  		this.suggest(actions.CERVEJA_ACTION, estilos,food);
 
@@ -231,18 +216,12 @@ class CervejaComQue{
 			consecutiveFallbacks = _app.data.consecutiveFallbacks;
 		}
 
- 		// app.getContext();
- 		console.log("############## FALLBACK");
-
- 		console.log("consecutiveFallbacks:" + consecutiveFallbacks);
-
  		if(consecutiveFallbacks < MAX_FALLBACKS){
 
  			_app.data.consecutiveFallbacks = ++consecutiveFallbacks;
  			//Fallback
  			_app.ask(buildSpeech(getRandomEntry(FALLBACK)));
 
- 			console.log("consecutiveFallbacks:" + consecutiveFallbacks);
  		}
  		else{
  			_app.data.consecutiveFallbacks = 0;
@@ -279,7 +258,6 @@ class CervejaComQue{
  	}
 
  	requestPermission (app) {
- 		console.log('Pedindo permissão');
 	 	app.askForPermission(getRandomEntry(PERMISSION), app.SupportedPermissions.NAME);
 	}
 
@@ -297,14 +275,12 @@ class CervejaComQue{
 
 	saveName(app){
 
-		console.log('Saving name...');
-
 		if(!_firebaseApp){
 
  			_firebaseApp = firebase.initializeApp(config);
  		}
 
-		firebase.auth().signInWithEmailAndPassword('bruno.mourao.araujo@gmail.com','teste123').catch(function(error) {
+		firebase.auth().signInWithEmailAndPassword(configFile.FIREBASE_DB_USER,configFile.FIREBASE_DB_PASS).catch(function(error) {
 			// Handle Errors here.
 			var errorCode = error.code;
 			var errorMessage = error.message;
@@ -337,10 +313,10 @@ class CervejaComQue{
 
  		if(!_bitterness && !_color && !_alcoholicVol){
 
- 			let sugChips = ['mais','menos','tanto faz'];
+ 			let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
 
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(buildSpeech(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER) + FIM_CONVERSA))
+		 			.addSimpleResponse(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER)))
 		 			.addSuggestions(sugChips)
 		 			);
 	 	}
@@ -370,7 +346,7 @@ class CervejaComQue{
 
 		_app.data.ibu = ibu;
 
-		let sugChips = ['mais','menos','tanto faz'];
+		let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 		
@@ -391,7 +367,7 @@ class CervejaComQue{
 
 		_app.data.ibu = ibu;
 
-		let sugChips = ['mais','menos','tanto faz'];
+		let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 
@@ -402,7 +378,7 @@ class CervejaComQue{
 
  		this.resetFallbackCount();
 
- 		let sugChips = ['mais','menos','tanto faz'];
+ 		let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
 
@@ -421,10 +397,9 @@ class CervejaComQue{
 			teora = 100;
 		}
 
-		console.log('new teora:' + teora);
 		_app.data.teorA = teora;
 
-		let sugChips = ['clara','escura','tanto faz'];
+		let sugChips = [suggestChips.CLARA,suggestChips.ESCURA,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
 		
@@ -443,11 +418,9 @@ class CervejaComQue{
 			teora = 0;
 		}
 
-		console.log('new teora:' + teora);
-
 		_app.data.teorA = teora;
 
-		let sugChips = ['clara','escura','tanto faz'];
+		let sugChips = [suggestChips.CLARA,suggestChips.ESCURA,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
  	}
@@ -458,7 +431,7 @@ class CervejaComQue{
 
 		//no filter needed
 
-		let sugChips = ['clara','escura','tanto faz'];
+		let sugChips = [suggestChips.CLARA,suggestChips.ESCURA,suggestChips.TANTO_FAZ];
 
 		this.helpChooseFinishStep(contexts.CTX_ALCOHOLIC_LVL,contexts.CTX_BITTERNESS,ASK_COLOR, sugChips);
 
@@ -476,8 +449,6 @@ class CervejaComQue{
 		if(color > 40){
 			color = 40;
 		}
-
-		console.log('new color:' + color);
 
 		_app.data.srm = color;
 
@@ -499,8 +470,6 @@ class CervejaComQue{
 		if(color < 0){
 			color = 0;
 		}
-
-		console.log('new color:' + color);
 
 		_app.data.srm = color;
 
@@ -525,8 +494,6 @@ class CervejaComQue{
  		_app.setContext(contexts.CTX_COMIDA);
 
  		let estilo = _app.data.estilo;
-
- 		console.log('Estilo em app.data:' + estilo);// + ', comidas:' + getEstilo(estilo).comidas);
 
  		this.suggest(actions.COMIDA_ACTION, getEstilo(estilo).comidas,estilo);
  	}
@@ -570,7 +537,7 @@ class CervejaComQue{
  	welcome(app){
  		let welcomePhrase = "";
 
- 		let sugChips = ['Harmonizar Cerveja', 'Me ajude a escolher'];
+ 		let sugChips = [suggestChips.HARMONIZAR_CERVEJA, suggestChips.HELP_CHOOSE];
 
  		if(app.getUser().lastSeen){
 
@@ -579,7 +546,7 @@ class CervejaComQue{
 	 			_firebaseApp = firebase.initializeApp(config);
 	 		}
 
-			firebase.auth().signInWithEmailAndPassword('bruno.mourao.araujo@gmail.com','teste123').catch(function(error) {
+			firebase.auth().signInWithEmailAndPassword(configFile.FIREBASE_DB_USER,configFile.FIREBASE_DB_PASS).catch(function(error) {
 				// Handle Errors here.
 				var errorCode = error.code;
 				var errorMessage = error.message;
@@ -587,14 +554,10 @@ class CervejaComQue{
 				console.log('##### Error authenticating:' + errorCode + ' - ' + errorMessage);
 			});
 
-			console.log('-------- Firebase inicializado');
-
 			// Get a reference to the database service
 			let database = _firebaseApp.database();
 
 			let userId = app.getUser().userId;
-
-			console.log('userId:' + userId);
 
 			database.ref('/users/' + userId).once('value').then(function(snapshot){
 				userName = (snapshot.val() && snapshot.val().name);
@@ -641,11 +604,6 @@ class CervejaComQue{
   	
   	suggest(what, arrSuggest, userInput){
 
-		console.log("What: " + what);
-		console.log("User input: " + userInput);
-		console.log("Suggestions----: " + arrSuggest);
-
-
 		let resposta = buildSpeech(getRandomEntry(NO_SUGGESTION));
 
 		let refused;
@@ -662,7 +620,6 @@ class CervejaComQue{
 		}
 		else
 		{
-			console.log('what: ' + what + ' - sugeridas: ' + _app.data.comidas_sugeridas);
 			if(_app.data.comidas_sugeridas){
 				refused = _app.data.comidas_sugeridas;	
 			}
@@ -671,7 +628,6 @@ class CervejaComQue{
 
 		let suggestions = [];
 		
-		console.log('refused:'+ refused);
 		//if there is any food that was already suggest it means the user refused the first suggestion
 		if(refused){
 
@@ -689,7 +645,6 @@ class CervejaComQue{
 		}
 
 		if(suggestions.length > 0){
-			console.log('##### refusedAny? ' + refusedAny);
 			let suggestion = getRandomEntry(suggestions);
 			if(!refusedAny){//this is the first suggestion
 				resposta =  buildSpeech(getRandomEntry(ACK) + getRandomEntry(FIRST_SUGGESTIONS).replace('$1',userInput).replace('$2',suggestion) + getRandomEntry(FIM_FRASE));	
@@ -706,21 +661,18 @@ class CervejaComQue{
 				else{
 					_app.data.estilos_sugeridos += ',' + suggestion;
 				}
-				console.log('________ Estilos sugeridos: ' + _app.data.estilos_sugeridos);
 			}
 			else{
-				console.log('*> Comidas sugeridas: ' + _app.data.comidas_sugeridas + ' - sugerido agora:' + suggestion);
 				if(!_app.data.comidas_sugeridas){
 					_app.data.comidas_sugeridas = suggestion;
 				}
 				else{
 					_app.data.comidas_sugeridas += ',' + suggestion;
 				}
-				console.log('________ Comidas sugeridas: ' + _app.data.comidas_sugeridas);
 			}
 			_app.setContext(contexts.CTX_SUGGESTED,5);
 
-			let sugChips = ['Delícia','Tem outra coisa?'];
+			let sugChips = [suggestChips.DELICIA,suggestChips.OUTRA_COISA];
 
 			_app.ask(_app.buildRichResponse()
 		 			.addSimpleResponse(resposta)
@@ -744,7 +696,6 @@ class CervejaComQue{
 	}
 
 	buildCardWithButton(text,title,imgPath, imgDesc, btnText, btnLink, _speech){
-		console.log('card');
 		let card = _app.buildBasicCard(text)
 							.setTitle(title)
 							.setImage(imgPath,imgDesc)
@@ -771,7 +722,7 @@ class CervejaComQue{
 		if(nextQuestionArr){
 			//ask next question
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(buildSpeech(INICIO_CONVERSA + getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr) + FIM_CONVERSA))
+		 			.addSimpleResponse(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr)))
 		 			.addSuggestions(sugChips)
 		 			);
 		}
@@ -790,8 +741,6 @@ class CervejaComQue{
 
 			let minColor = _app.data.srm - (SRM_INCREMENT/2);
 			let maxColor = _app.data.srm + (SRM_INCREMENT/2);
-
-			console.log('minIBU:' + minIBU + ', maxIBU:' + maxIBU + '\nminTeora:' + minTeorA + ',maxTeorA:' + maxTeorA + '\nminColor:' + minColor + ',maxColor:' + maxColor );
 
 			var harmoniza = readJsonFile(HARM_JSON_FILE);
 
@@ -812,8 +761,6 @@ class CervejaComQue{
 
 			_app.data.estilo = estilo.nome;
 
-			console.log("estilo sugerido:" + JSON.stringify(estilo));
-
 			this.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_1st_SUGGEST).replace('$1',estilo.nome)));
 
 	 	}
@@ -822,16 +769,16 @@ class CervejaComQue{
 
 		let ibu = _app.data.ibu;
 
-		if(_bitterness === 'mais'){
+		if(_bitterness === entities.BITT_MAIS){
 			ibu += IBU_INCREMENT;
 		}
-		else if(_bitterness === 'muito mais'){
+		else if(_bitterness === entities.BITT_MUITO_MAIS){
 			ibu += (IBU_INCREMENT * 2);
 		}
-		else if(_bitterness === 'menos'){
+		else if(_bitterness === entities.BITT_MENOS){
 			ibu -= IBU_INCREMENT;
 		}
-		else if(_bitterness === 'muito menos'){
+		else if(_bitterness === entities.BITT_MUITO_MENOS){
 			ibu -= (IBU_INCREMENT * 2);
 		}
 
@@ -842,16 +789,16 @@ class CervejaComQue{
 
 		let srm = _app.data.srm;
 
-		if(_color === 'escura'){
+		if(_color === entities.COLOR_ESCURA){
 			srm += SRM_INCREMENT;
 		}
-		else if(_color === 'muito escura'){
+		else if(_color === entities.COLOR_MUITO_ESCURA){
 			srm += (SRM_INCREMENT * 2);
 		}
-		else if(_color === 'clara'){
+		else if(_color === entities.COLOR_CLARA){
 			srm -= SRM_INCREMENT;
 		}
-		else if(_color === 'muito clara'){
+		else if(_color === entities.COLOR_MUITO_CLARA){
 			srm -= (SRM_INCREMENT * 2);
 		}
 
@@ -862,16 +809,16 @@ class CervejaComQue{
 		
 		let teorA = _app.data.teorA;
 
-		if(_alcoholicVol === 'mais alto'){
+		if(_alcoholicVol === entities.ALC_VOL_ALTO){
 			teorA += TeorA_INCREMENT;
 		}
-		else if(_alcoholicVol === 'muito mais alto'){
+		else if(_alcoholicVol === entities.ALC_VOL_MUITO_ALTO){
 			teorA += (TeorA_INCREMENT * 2);
 		}
-		else if(_alcoholicVol === 'mais baixo'){
+		else if(_alcoholicVol === entities.ALC_VOL_BAIXO){
 			teorA -= TeorA_INCREMENT;
 		}
-		else if(_alcoholicVol === 'muito mais baixo'){
+		else if(_alcoholicVol === entities.ALC_VOL_MUITO_BAIXO){
 			teorA -= (TeorA_INCREMENT * 2);
 		}
 
