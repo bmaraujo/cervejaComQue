@@ -11,3 +11,4 @@ function define(name, value) {
 define('API_KEY', '');
 define('FIREBASE_DB_USER','');
 define('FIREBASE_DB_PASS','');
+define('CHATBASE_API_KEY','');
