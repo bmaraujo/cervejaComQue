@@ -12,3 +12,6 @@ define('API_KEY', '');
 define('FIREBASE_DB_USER','');
 define('FIREBASE_DB_PASS','');
 define('CHATBASE_API_KEY','');
+define('CHATBASE_URL', '');
+define('CHATBASE_PLATAFORM', '');
+define('CHATBASE_VERSION', '');
