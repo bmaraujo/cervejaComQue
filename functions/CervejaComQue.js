@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('fs');
+const Chatbase = require('./Chatbase');
 
 
 var dialogs = JSON.parse(fs.readFileSync('./dialogs.json', 'utf8'));
@@ -58,8 +59,14 @@ const IBU_INCREMENT = 15;
 const TeorA_INCREMENT = 1.8;
 const SRM_INCREMENT = 8;
 
-var _app;
-var _firebaseApp;
+const USER_MESSAGE = 'userMessage';
+const BOT_REPLY = 'botReply';
+const NOT_HANDLED_USER_MSG = 'notHandled_userMsg';
+
+let _app;
+let _firebaseApp;
+
+let _chatbase;
 
 // Set the configuration for the database
 const config = {
@@ -69,7 +76,7 @@ const config = {
 	storageBucket: "cervejacomque.appspot.com"
 };
 
-var userName;
+let userName;
 
 function readJsonFile(filename){
 		return JSON.parse(fs.readFileSync(filename, 'utf8'));
@@ -114,6 +121,30 @@ function buildSpeech(message){
 	return speech
 }
 
+//handles comunication between Chatbase and this app
+function comunicaChatbase(app, action,reply){
+
+	console.log('Comunica chatbase action:' + action);
+
+	_chatbase = new Chatbase();
+
+	let message = app.getRawInput();
+	let intent = app.getIntent();
+	let userId = app.getUser().userId;
+
+	if(action === USER_MESSAGE){
+		_chatbase.sendUserMessage(message, intent,userId);
+	}
+	
+	if(action === BOT_REPLY){
+		_chatbase.sendBotReply(reply,userId);
+	}
+
+	if(action === NOT_HANDLED_USER_MSG){
+		_chatbase.sendNotHandledUserMsg(message,userId);
+	}
+}
+
 class CervejaComQue{
 
 
@@ -153,10 +184,13 @@ class CervejaComQue{
 	  	actionMap.set("handlePermission", this.handlePermission.bind(this));
 
 	  	_app.handleRequest(actionMap);
+
 	}
 
  	//Searches for a food according to the beer style input
  	procurarComida(){
+
+ 		comunicaChatbase(_app,USER_MESSAGE);
 
  		this.resetFallbackCount();
 
@@ -190,6 +224,8 @@ class CervejaComQue{
 
  	procurarCerveja(){
 
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		this.resetFallbackCount();
 
  		let food = _app.getArgument(COMIDA);
@@ -208,6 +244,9 @@ class CervejaComQue{
  	}
 
  	fallBack(){
+
+ 		comunicaChatbase(_app,NOT_HANDLED_USER_MSG);
+
  		let consecutiveFallbacks;
 		if(!_app.data.consecutiveFallbacks){
 			consecutiveFallbacks = 1;
@@ -240,6 +279,7 @@ class CervejaComQue{
  	}
 
  	about(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
  		this.resetFallbackCount();
  		this.ask(buildSpeech(getRandomEntry(ABOUT)));
 
@@ -247,6 +287,8 @@ class CervejaComQue{
 
 
  	suggestionAccepted(app){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		//verificar se o nome ja foi salvo
  		if(!userName){
  			//se nao foi, pedir permissao para salvar
@@ -268,8 +310,12 @@ class CervejaComQue{
 			this.finishApp();
 		}
 		else{
+			let reply = buildSpeech(getRandomEntry(ACK) + getRandomEntry(NON_PERM_ENDING));
+
+			comunicaChatbase(_app,BOT_REPLY,reply);
+
 			//No permission was granted, so just finish
-			app.tell(buildSpeech(getRandomEntry(ACK) + getRandomEntry(NON_PERM_ENDING)));
+			app.tell(reply);
 		}
 	}
 
@@ -295,6 +341,8 @@ class CervejaComQue{
 	}
 
  	helpChoose(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		this.resetFallbackCount();
 
  		//initial values for each style property
@@ -315,8 +363,12 @@ class CervejaComQue{
 
  			let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
 
+ 			let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER));
+
+ 			comunicaChatbase(_app,BOT_REPLY,reply);
+
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER)))
+		 			.addSimpleResponse(reply)
 		 			.addSuggestions(sugChips)
 		 			);
 	 	}
@@ -332,6 +384,8 @@ class CervejaComQue{
  	}
 
  	helpChooseStp2Mais(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
 		this.resetFallbackCount();
 
 		let ibu = _app.data.ibu;
@@ -353,6 +407,8 @@ class CervejaComQue{
  	}
 
  	helpChooseStp2Menos(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		this.resetFallbackCount();
 
 		let ibu = _app.data.ibu;
@@ -375,6 +431,7 @@ class CervejaComQue{
 
 
  	helpChooseStp2TantoFaz(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
 
  		this.resetFallbackCount();
 
@@ -385,6 +442,8 @@ class CervejaComQue{
  	}
 
  	helpChooseStp3Mais(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
 		this.resetFallbackCount();
 
 		let teora = _app.data.teorA;
@@ -406,6 +465,8 @@ class CervejaComQue{
  	}
 
  	helpChooseStp3Menos(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		this.resetFallbackCount();
 
 		let teora = _app.data.teorA;
@@ -426,6 +487,7 @@ class CervejaComQue{
  	}
 
  	helpChooseStp3TantoFaz(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
 
  		this.resetFallbackCount();
 
@@ -438,6 +500,8 @@ class CervejaComQue{
  	}
 
  	helpChooseStp4Mais(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
 		this.resetFallbackCount();
 
 		let color = _app.data.srm;
@@ -459,6 +523,8 @@ class CervejaComQue{
 
 
  	helpChooseStp4Menos(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		this.resetFallbackCount();
 
 		let color = _app.data.srm;
@@ -479,6 +545,7 @@ class CervejaComQue{
  	}
 
  	helpChooseStp4TantoFaz(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
 
  		this.resetFallbackCount();
 
@@ -499,6 +566,7 @@ class CervejaComQue{
  	}
 
  	helpChooseRejected(){
+ 		comunicaChatbase(_app,USER_MESSAGE);
 
  		let estilo = _app.data.estilo;
  		let filteredList = _app.data.list;
@@ -518,10 +586,17 @@ class CervejaComQue{
 	 		_app.data.estilo = estiloObj.nome;
 	 		_app.data.list = newList;
 
-	 		this.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_FOLLOW_SUGGEST).replace('$1',estiloObj.nome)));
+	 		let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_FOLLOW_SUGGEST).replace('$1',estiloObj.nome));
+
+	 		comunicaChatbase(_app,BOT_REPLY,reply);
+
+	 		this.ask(reply);
 	 	}
 	 	else{
 	 		let resposta = buildSpeech(getRandomEntry(NO_SUGGESTION));
+
+	 		comunicaChatbase(_app,BOT_REPLY,resposta);
+
 	 		resposta = this.buildCardWithButton('Sites com harmonização de cervejas','Harmonização de Cervejas',
 				'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
 				'imagem de 4 pequenos copos de cerveja de estilos diferentes, com um mini prato com diferentes comidas em frente a cada um, em cima de uma tábua de madeira.',
@@ -535,6 +610,9 @@ class CervejaComQue{
 
 
  	welcome(app){
+
+ 		comunicaChatbase(_app,USER_MESSAGE);
+
  		let welcomePhrase = "";
 
  		let sugChips = [suggestChips.HARMONIZAR_CERVEJA, suggestChips.HELP_CHOOSE];
@@ -567,6 +645,9 @@ class CervejaComQue{
 		 		else{
 		 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK_NOPERM));
 		 		}
+
+		 		comunicaChatbase(_app,BOT_REPLY, welcomePhrase);
+
 		 		app.ask(app.buildRichResponse()
 		 			.addSimpleResponse({speech:welcomePhrase})
 		 			.addSuggestions(sugChips)
@@ -577,6 +658,9 @@ class CervejaComQue{
  		}
  		else{
  			welcomePhrase = buildSpeech(getRandomEntry(WELCOME));
+
+ 			comunicaChatbase(_app,BOT_REPLY, welcomePhrase);
+
  			app.ask(app.buildRichResponse()
 		 			.addSimpleResponse({speech:welcomePhrase})
 		 			.addSuggestions(sugChips)
@@ -588,12 +672,19 @@ class CervejaComQue{
  	finishApp(){
 		//check if the user has already granted permission to save his info
 		if(userName){
-			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',userName)));
+
+			let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',userName));
+
+			comunicaChatbase(_app,BOT_REPLY, reply);
+
+			_app.tell();
 		}
 		else{
-			//ask user for permission
-			// requestPermission(app);
-			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING)));
+			let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING));
+			
+			comunicaChatbase(_app,BOT_REPLY, reply);
+
+			_app.tell(reply);
 		}
 	}
 
@@ -674,11 +765,15 @@ class CervejaComQue{
 
 			let sugChips = [suggestChips.DELICIA,suggestChips.OUTRA_COISA];
 
+			comunicaChatbase(_app,BOT_REPLY, resposta);
+
 			_app.ask(_app.buildRichResponse()
 		 			.addSimpleResponse(resposta)
 		 			.addSuggestions(sugChips)
 		 			); // this is called when suggesting food, we wait for the user reply (yes or no)
 		}
+
+		comunicaChatbase(_app,BOT_REPLY, resposta);
 
 		resposta = this.buildCardWithButton('Sites com harmonização de cervejas','Harmonização de Cervejas',
 					'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
@@ -720,9 +815,14 @@ class CervejaComQue{
 			_app.setContext(removeContext,0);
 		}
 		if(nextQuestionArr){
+
+			let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr));
+
+			comunicaChatbase(_app,BOT_REPLY, reply);
+
 			//ask next question
 	 		_app.ask(_app.buildRichResponse()
-		 			.addSimpleResponse(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr)))
+		 			.addSimpleResponse(reply)
 		 			.addSuggestions(sugChips)
 		 			);
 		}
@@ -761,7 +861,11 @@ class CervejaComQue{
 
 			_app.data.estilo = estilo.nome;
 
-			this.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_1st_SUGGEST).replace('$1',estilo.nome)));
+			let reply = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(HC_1st_SUGGEST).replace('$1',estilo.nome));
+
+			comunicaChatbase(_app,BOT_REPLY, reply);
+
+			this.ask(reply);
 
 	 	}
 
