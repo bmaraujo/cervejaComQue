@@ -40,6 +40,7 @@ const WELCOME_BACK_NOPERM=dialogs[constDialogs.WELCOME_BACK_NOPERM];
 const PERMISSION = dialogs[constDialogs.PERMISSION];
 const NON_PERM_ENDING = dialogs[constDialogs.NON_PERM_ENDING];
 const PERM_ENDING = dialogs[constDialogs.PERM_ENDING];
+const PROCUROU_MARCA = dialogs[constDialogs.PROCUROU_MARCA];
 
 //File with data
 const HARM_JSON_FILE = 'harmonizacoes.json';
@@ -64,10 +65,11 @@ var _firebaseApp;
 // Set the configuration for the database
 const config = {
 	apiKey: configFile.API_KEY,
-	authDomain: "cervejacomque.firebaseapp.com",
-	databaseURL: "https://cervejacomque.firebaseio.com/",
-	storageBucket: "cervejacomque.appspot.com"
+	authDomain: configFile.AUTH_DOMAIN,
+	databaseURL: configFile.DATABASE_URL,
+	storageBucket: configFile.STORAGE_BUCKET
 };
+
 
 function readJsonFile(filename){
 		return JSON.parse(fs.readFileSync(filename, 'utf8'));
@@ -148,9 +150,17 @@ class CervejaComQue{
 	  	actionMap.set(actions.HC_ACCEPTED_ACTION, this.helpChooseAccepted.bind(this));
 	  	actionMap.set(actions.HC_REJECTED_ACTION, this.helpChooseRejected.bind(this));
 
-	  	actionMap.set("handlePermission", this.handlePermission.bind(this));
+	  	actionMap.set(actions.HANDLE_PERMISSION, this.handlePermission.bind(this));
+	  	actionMap.set(actions.PROCUROU_MARCA, this.procurarMarca.bind(this));
 
 	  	_app.handleRequest(actionMap);
+	}
+
+	procurarMarca(){
+		_app.ask(_app.buildRichResponse()
+		 			.addSimpleResponse({speech:buildSpeech(getRandomEntry(PROCUROU_MARCA))})
+		 			.addSuggestions(['Lager', 'Pilsen','IPA'])
+		 			);	
 	}
 
  	//Searches for a food according to the beer style input

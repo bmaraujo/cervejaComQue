@@ -32,4 +32,6 @@ define('HC_ACCEPTED_ACTION', 'help_choose.accepted');
 define('HC_REJECTED_ACTION', 'help_choose.rejected');
 define('WELCOME_ACTION','input.welcome');
 define('FINISH_APP_ACTION','finish_conversation');
+define('HANDLE_PERMISSION','handlePermission');
+define('PROCUROU_MARCA','procurou_marca');
 
