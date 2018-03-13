@@ -256,6 +256,18 @@
 				"minSRM" : "2",
 				"maxSRM" : "4",
 				"comidas" : ["Dourado Assado", "Surubim na Brasa"]
+			},
+			{
+				"nome" : "Lager",
+				"descricao" : "Lager",
+				"maisInfo" : "",
+				"minTeorA" : "2.8",
+				"maxTeorA" : "3.5",
+				"minIBU" : "4",
+				"maxIBU" : "10",
+				"minSRM" : "1",
+				"maxSRM" : "4",
+				"comidas" : ["Anchovas", "Bacalhau","Camarão","Caranguejo", "Empanadas","Escargot", "Falafel", "Lagosta", "Lagostin","Lula Frita", "Mexilhões", "Ostras", "Pizza Mussarela", "Pizza Marguerita", "Salada de Folhas Verdes", "Salame", "Salmão", "Salmão Defumado","Caldo de Piranha", "Sopa de Legumes", "Sopa Minestrone"]
 			}
 	]
 }
