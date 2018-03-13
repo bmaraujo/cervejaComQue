@@ -69,8 +69,6 @@ const config = {
 	storageBucket: "cervejacomque.appspot.com"
 };
 
-var userName;
-
 function readJsonFile(filename){
 		return JSON.parse(fs.readFileSync(filename, 'utf8'));
 	}
@@ -248,7 +246,7 @@ class CervejaComQue{
 
  	suggestionAccepted(app){
  		//verificar se o nome ja foi salvo
- 		if(!userName){
+ 		if(!app.data.userName){
  			//se nao foi, pedir permissao para salvar
  			this.requestPermission(app);
  		}
@@ -263,7 +261,7 @@ class CervejaComQue{
 
 	handlePermission(app){
 		if(app.isPermissionGranted()){
-			userName = app.getUserName().givenName;
+			app.data.userName = app.getUserName().givenName;
 			this.saveName(app);
 			this.finishApp();
 		}
@@ -560,9 +558,10 @@ class CervejaComQue{
 			let userId = app.getUser().userId;
 
 			database.ref('/users/' + userId).once('value').then(function(snapshot){
-				userName = (snapshot.val() && snapshot.val().name);
+				let userName = (snapshot.val() && snapshot.val().name);
 				if (userName) {
 		 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK).replace("$1",userName));
+		 			app.data.userName = userName;
 		 		}
 		 		else{
 		 			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK_NOPERM));
@@ -587,8 +586,8 @@ class CervejaComQue{
 
  	finishApp(){
 		//check if the user has already granted permission to save his info
-		if(userName){
-			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',userName)));
+		if(_app.data.userName){
+			_app.tell(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',_app.data.userName)));
 		}
 		else{
 			//ask user for permission
