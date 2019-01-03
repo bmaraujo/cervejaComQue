@@ -104,27 +104,114 @@ app.intent('cervejacomq.searchHarmonization', (conv, {cerveja_estilo}) => {
 
 		resetFallbackCount(conv.user.storage);
 
-		let estilo = cerveja_estilo;
-
- 		//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
- 		if(!estilo){
-			estilo = conv.user.storage.estilo; 			
- 		}
-
- 		//get all foods of desired style
- 		const estiloComida = getEstilo(estilo); 
- 		let foods;
-		if(estiloComida){
- 			foods = getEstilo(estilo).comidas;
-		}
-
- 		conv.user.storage.estilo = estilo;
+		let estilo = setEstilo(cerveja_estilo);
 
  		this.suggest(conv,actions.COMIDA_ACTION, foods,estilo);
 });
 
+app.intent('cervejacomq.changeBeerStyle',(conv, {cerveja_estilo}) =>{
+	resetFallbackCount(conv.user.storage);
+
+	let estilo = setEstilo(cerveja_estilo);
+
+	this.suggest(conv,actions.COMIDA_ACTION, foods,estilo);
+
+});
+
+app.intent('cervejacomq.searchBeerStyle', (conv, {comida}) =>{
+
+	resetFallbackCount(conv.user.storage);
+
+	let food = comida;
+
+	//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
+	if(!food){
+		food = conv.user.storage.food; 			
+	}
+
+	conv.user.storage.food = food;
+
+	let estilos = getEstilosByFood(food);
+
+	this.suggest(actions.CERVEJA_ACTION, estilos,food);
+});
+
+app.intent('Default Fallback Intent', (conv) =>{
+	let consecutiveFallbacks;
+	if(!conv.user.storage.consecutiveFallbacks){
+		consecutiveFallbacks = 1;
+	}
+	else{
+		consecutiveFallbacks = conv.user.storage.consecutiveFallbacks;
+	}
+
+		if(consecutiveFallbacks < MAX_FALLBACKS){
+
+			conv.user.storage.consecutiveFallbacks = ++consecutiveFallbacks;
+			//Fallback
+			conv.ask(buildSpeech(getRandomEntry(FALLBACK)));
+
+		}
+		else{
+			conv.user.storage.consecutiveFallbacks = 0;
+
+			let finishSpeech = buildSpeech(getRandomEntry(FALLBACK_FINISH));
+
+			closeConversationWithCard(conv);
+		}
+});
+
+app.intent('cervejacomq.about',(conv)=>{
+	resetFallbackCount(conv.user.storage);
+ 	conv.ask(buildSpeech(getRandomEntry(ABOUT)));
+});
+
+app.intent('cervejacomq.userAcceptSuggestion', (conv)=>{
+	//verificar se o nome ja foi salvo
+	if(!conv.user.storage.userName){
+		//se nao foi, pedir permissao para salvar
+		requestPermission(conv);
+	}
+	else{
+		finishApp(conv);
+	}
+});
+
+app.intent('cervejaComque.permission',(conv, params, confirmationGranted) => {
+	const {name} = conv.user;
+	if (confirmationGranted) {
+		if (name) {
+			saveName(conv);
+			finishApp(conv);
+		}
+	}
+	else{
+		//No permission was granted, so just finish
+		conv.close(buildSpeech(getRandomEntry(ACK) + getRandomEntry(NON_PERM_ENDING)));
+	}
+});
 
 exports.cervejaComQue = functions.https.onRequest(app);
+
+function setEstilo(cerveja_estilo){
+	let estilo = cerveja_estilo;
+
+	//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
+	if(!estilo){
+		estilo = conv.user.storage.estilo; 			
+	}
+
+	//get all foods of desired style
+	const estiloComida = getEstilo(estilo); 
+	let foods;
+	if(estiloComida){
+		foods = getEstilo(estilo).comidas;
+	}
+
+	conv.user.storage.estilo = estilo;
+
+	return estilo;
+}
 
 function getRandomEntry(arr){
 		return arr[Math.floor(Math.random() * arr.length)];
@@ -231,17 +318,58 @@ function suggest(conv, what, arrSuggest, userInput){
 			conv.ask(new Suggestions([suggestChips.DELICIA,suggestChips.OUTRA_COISA])); // this is called when suggesting food, we wait for the user reply (yes or no)
 		}
 
-		conv.close(new BasicCard({
-			text:resposta,
-			subtitle: 'Sites com harmonização de cervejas',
-			title: 'Harmonização de Cervejas',
-			image: new Image({
-			    url: 'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
-			    alt: 'imagem de 4 pequenos copos de cerveja de estilos diferentes, com um mini prato com diferentes comidas em frente a cada um, em cima de uma tábua de madeira.',
-			  }),
-			buttons: new Button({
-			    title: 'Brejas',
-			    url: 'http://www.brejas.com.br/harmonizacao-cerveja.shtml',
-			  }),
-		}));// this is called when finishing talking to the user
+		closeConversationWithCard(conv);// this is called when finishing talking to the user
 	}
+
+function getEstilosByFood(food){
+	let estilos = [];
+	var harmoniza = readJsonFile(HARM_JSON_FILE);
+	for(var i=0, maxEstilos = harmoniza.estilos.length; i< maxEstilos; i++){
+		for(var j=0, maxComidas = harmoniza.estilos[i].comidas.length;  j<maxComidas; j++){
+			let comida = harmoniza.estilos[i].comidas[j];
+			if (comida.toLowerCase() === food.toLowerCase()) {
+				estilos.push(harmoniza.estilos[i].nome);
+			}
+		}
+		
+	}
+	return estilos;
+}
+
+function closeConversationWithCard(conv){
+	conv.close(new BasicCard({
+		text:resposta,
+		subtitle: 'Sites com harmonização de cervejas',
+		title: 'Harmonização de Cervejas',
+		image: new Image({
+		    url: 'https://www.revide.com.br/media/cache/aa/68/aa687d9843b4339605d1a372d2c86b4d.jpg',
+		    alt: 'imagem de 4 pequenos copos de cerveja de estilos diferentes, com um mini prato com diferentes comidas em frente a cada um, em cima de uma tábua de madeira.',
+		  }),
+		buttons: new Button({
+		    title: 'Brejas',
+		    url: 'http://www.brejas.com.br/harmonizacao-cerveja.shtml',
+		  }),
+	}));
+}
+
+function requestPermission (conv) {
+	const options = {
+	    context: getRandomEntry(PERMISSION),
+	    permissions: ['NAME'],
+	  };
+	conv.ask(new Permission(options));
+}
+
+function finishApp(conv){
+	let resposta = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING));
+	//check if the user has already granted permission to save his info
+	if(conv.user.storage.userName){
+		resposta = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',conv.user.storage.userName));
+	}
+	conv.close(resposta);
+}
+
+function saveName(conv){
+
+	conv.user.storage.name = conv.user.name.given;
+}
