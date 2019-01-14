@@ -177,7 +177,7 @@ app.intent('cervejacomq.userAcceptSuggestion', (conv)=>{
 	}
 });
 
-app.intent('cervejaComque.permission',(conv, params, confirmationGranted) => {
+app.intent('cervejaComque.permission',(conv, {params, confirmationGranted}) => {
 	const {name} = conv.user;
 	if (confirmationGranted) {
 		if (name) {
@@ -190,6 +190,35 @@ app.intent('cervejaComque.permission',(conv, params, confirmationGranted) => {
 		conv.close(buildSpeech(getRandomEntry(ACK) + getRandomEntry(NON_PERM_ENDING)));
 	}
 });
+
+app.intnet('cervejacomq.helpUserChoose', (conv,{bitterness,color,alcoholicVolume}) =>{
+	this.resetFallbackCount();
+
+	//initial values for each style property
+	let ibu = 50;
+	let teorA = 6;
+	let srm  = 10;
+
+	//save settings for filtering later
+	conv.user.storage.ibu = ibu;
+	conv.user.storage.teorA  = teorA;
+	conv.user.storage.srm = srm;
+
+	if(!bitterness && !color && !alcoholicVol){
+
+		conv.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(ASK_BITTER)));
+		conv.ask(new Suggestions([suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ]));
+ 	}
+ 	else{// this is the case where the user said the whole phrase
+
+ 		//Extract the user's input settings
+ 		this.setIBU(conv,bitterness);
+ 		this.setSRM(conv,color);
+ 		this.setAlcVol(conv,alcoholicVol);
+ 		
+ 		this.helpChoose1stSuggestion();
+ 	}
+})
 
 exports.cervejaComQue = functions.https.onRequest(app);
 
@@ -372,4 +401,65 @@ function finishApp(conv){
 function saveName(conv){
 
 	conv.user.storage.name = conv.user.name.given;
+}
+
+
+function setIBU(conv,bitterness){
+
+	let ibu = conv.user.storage.ibu;
+
+	if(bitterness === entities.BITT_MAIS){
+		ibu += IBU_INCREMENT;
+	}
+	else if(bitterness === entities.BITT_MUITO_MAIS){
+		ibu += (IBU_INCREMENT * 2);
+	}
+	else if(bitterness === entities.BITT_MENOS){
+		ibu -= IBU_INCREMENT;
+	}
+	else if(bitterness === entities.BITT_MUITO_MENOS){
+		ibu -= (IBU_INCREMENT * 2);
+	}
+
+	conv.user.storage.ibu = ibu;
+}
+
+function setSRM(conv, color){
+
+	let srm = conv.user.storage.srm;
+
+	if(color === entities.COLOR_ESCURA){
+		srm += SRM_INCREMENT;
+	}
+	else if(color === entities.COLOR_MUITO_ESCURA){
+		srm += (SRM_INCREMENT * 2);
+	}
+	else if(color === entities.COLOR_CLARA){
+		srm -= SRM_INCREMENT;
+	}
+	else if(color === entities.COLOR_MUITO_CLARA){
+		srm -= (SRM_INCREMENT * 2);
+	}
+
+	conv.user.storage.srm = srm;
+}
+
+function setAlcVol(conv, alcoholicVol){
+		
+	let teorA = conv.user.storage.teorA;
+
+	if(alcoholicVol === entities.ALC_VOL_ALTO){
+		teorA += TeorA_INCREMENT;
+	}
+	else if(alcoholicVol === entities.ALC_VOL_MUITO_ALTO){
+		teorA += (TeorA_INCREMENT * 2);
+	}
+	else if(alcoholicVol === entities.ALC_VOL_BAIXO){
+		teorA -= TeorA_INCREMENT;
+	}
+	else if(alcoholicVol === entities.ALC_VOL_MUITO_BAIXO){
+		teorA -= (TeorA_INCREMENT * 2);
+	}
+
+	conv.user.storage.teorA  = teorA;
 }
