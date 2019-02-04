@@ -74,7 +74,7 @@ app.intent('welcome', (conv) => {
 	if(conv.user.last.seen){
 
 		//Try to get the user name
-		const userName = conv.user.storage.name;
+		const userName = getStorage(conv).name;
 
 		if (userName) {
  			welcomePhrase = buildSpeech(getRandomEntry(WELCOME_BACK).replace("$1",userName));
@@ -102,7 +102,7 @@ app.intent('cervejacomq.procurouMarca', (conv) =>{
 
 app.intent('cervejacomq.searchHarmonization', (conv, {cerveja_estilo}) => {
 
-		resetFallbackCount(conv.user.storage);
+		resetFallbackCount(getStorage(conv));
 
 		let estilo = setEstilo(cerveja_estilo);
 
@@ -110,7 +110,7 @@ app.intent('cervejacomq.searchHarmonization', (conv, {cerveja_estilo}) => {
 });
 
 app.intent('cervejacomq.changeBeerStyle',(conv, {cerveja_estilo}) =>{
-	resetFallbackCount(conv.user.storage);
+	resetFallbackCount(getStorage(conv));
 
 	let estilo = setEstilo(cerveja_estilo);
 
@@ -120,16 +120,16 @@ app.intent('cervejacomq.changeBeerStyle',(conv, {cerveja_estilo}) =>{
 
 app.intent('cervejacomq.searchBeerStyle', (conv, {comida}) =>{
 
-	resetFallbackCount(conv.user.storage);
+	resetFallbackCount(getStorage(conv));
 
 	let food = comida;
 
 	//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
 	if(!food){
-		food = conv.user.storage.food; 			
+		food = getStorage(conv).food; 			
 	}
 
-	conv.user.storage.food = food;
+	getStorage(conv).food = food;
 
 	let estilos = getEstilosByFood(food);
 
@@ -138,22 +138,22 @@ app.intent('cervejacomq.searchBeerStyle', (conv, {comida}) =>{
 
 app.intent('Default Fallback Intent', (conv) =>{
 	let consecutiveFallbacks;
-	if(!conv.user.storage.consecutiveFallbacks){
+	if(!getStorage(conv).consecutiveFallbacks){
 		consecutiveFallbacks = 1;
 	}
 	else{
-		consecutiveFallbacks = conv.user.storage.consecutiveFallbacks;
+		consecutiveFallbacks = getStorage(conv).consecutiveFallbacks;
 	}
 
 		if(consecutiveFallbacks < MAX_FALLBACKS){
 
-			conv.user.storage.consecutiveFallbacks = ++consecutiveFallbacks;
+			getStorage(conv).consecutiveFallbacks = ++consecutiveFallbacks;
 			//Fallback
 			conv.ask(buildSpeech(getRandomEntry(FALLBACK)));
 
 		}
 		else{
-			conv.user.storage.consecutiveFallbacks = 0;
+			getStorage(conv).consecutiveFallbacks = 0;
 
 			let finishSpeech = buildSpeech(getRandomEntry(FALLBACK_FINISH));
 
@@ -162,13 +162,13 @@ app.intent('Default Fallback Intent', (conv) =>{
 });
 
 app.intent('cervejacomq.about',(conv)=>{
-	resetFallbackCount(conv.user.storage);
+	resetFallbackCount(getStorage(conv));
  	conv.ask(buildSpeech(getRandomEntry(ABOUT)));
 });
 
 app.intent('cervejacomq.userAcceptSuggestion', (conv)=>{
 	//verificar se o nome ja foi salvo
-	if(!conv.user.storage.userName){
+	if(!getStorage(conv).userName){
 		//se nao foi, pedir permissao para salvar
 		requestPermission(conv);
 	}
@@ -200,9 +200,9 @@ app.intnet('cervejacomq.helpUserChoose', (conv,{bitterness,color,alcoholicVolume
 	let srm  = 10;
 
 	//save settings for filtering later
-	conv.user.storage.ibu = ibu;
-	conv.user.storage.teorA  = teorA;
-	conv.user.storage.srm = srm;
+	getStorage(conv).ibu = ibu;
+	getStorage(conv).teorA  = teorA;
+	getStorage(conv).srm = srm;
 
 	if(!bitterness && !color && !alcoholicVol){
 
@@ -220,14 +220,62 @@ app.intnet('cervejacomq.helpUserChoose', (conv,{bitterness,color,alcoholicVolume
  	}
 })
 
+app.intent('help_choose.step2_mais', (conv) =>{
+	this.resetFallbackCount();
+
+	let ibu = getStorage(conv).data.ibu;
+
+	//increment IBU setting
+	ibu += IBU_INCREMENT;
+
+	//max limit for ibu
+	if(ibu > 120){
+		ibu = 120;
+	}
+
+	getStorage(conv).data.ibu = ibu;
+
+	let sugChips = [suggestChips.MAIS,suggestChips.MENOS,suggestChips.TANTO_FAZ];
+
+	this.helpChooseFinishStep(conv, contexts.CTX_BITTERNESS,undefined,ASK_ALCOHOLIC, sugChips);
+});
+
 exports.cervejaComQue = functions.https.onRequest(app);
+
+function getStorage(conv){
+	return getStorage(conv);
+}
+
+function addContext(conv, context, lifeTime){
+	conv.contexts.set(context, lifeTime);
+}
+
+function delContext(conv,context){
+	conv.contexts.set(context, 0);
+}
+
+function helpChooseFinishStep(conv, newContext,removeContext,nextQuestionArr, sugChips){
+
+		//set the new context
+		addContext(conv,newContext,2);
+
+		//if there is a removeContext, remove it
+		if(removeContext){
+			delContext(conv,removeContext);
+		}
+		if(nextQuestionArr){
+			//ask next question
+	 		conv.ask(buildSpeech(getRandomEntry(ACK) +  getRandomEntry(nextQuestionArr)));
+	 		conv.ask(new Suggestions(sugChips));
+		}
+	}
 
 function setEstilo(cerveja_estilo){
 	let estilo = cerveja_estilo;
 
 	//If there is no beer stlye argument it means it is not the first suggestion, use the style saved before
 	if(!estilo){
-		estilo = conv.user.storage.estilo; 			
+		estilo = getStorage(conv).estilo; 			
 	}
 
 	//get all foods of desired style
@@ -237,7 +285,7 @@ function setEstilo(cerveja_estilo){
 		foods = getEstilo(estilo).comidas;
 	}
 
-	conv.user.storage.estilo = estilo;
+	getStorage(conv).estilo = estilo;
 
 	return estilo;
 }
@@ -283,15 +331,15 @@ function suggest(conv, what, arrSuggest, userInput){
 
 		//what the user wants
 		if(what === actions.CERVEJA_ACTION){
-			if(conv.user.storage.estilos_sugeridos){
-				refused = conv.user.storage.estilos_sugeridos;
+			if(getStorage(conv).estilos_sugeridos){
+				refused = getStorage(conv).estilos_sugeridos;
 			}
 			FIRST_SUGGESTIONS = FIRST_STYLE_SUGGESTONS;
 		}
 		else
 		{
-			if(conv.user.storage.comidas_sugeridas){
-				refused = conv.user.storage.comidas_sugeridas;	
+			if(getStorage(conv).comidas_sugeridas){
+				refused = getStorage(conv).comidas_sugeridas;	
 			}
 			FIRST_SUGGESTIONS = FIRST_FOOD_SUGGESTIONS;
 		}
@@ -325,19 +373,19 @@ function suggest(conv, what, arrSuggest, userInput){
 			
 			//keeps track of what food was already suggested
 			if(what === actions.CERVEJA_ACTION){
-				if(!conv.user.storage.estilos_sugeridos){
-					conv.user.storage.estilos_sugeridos = suggestion;
+				if(!getStorage(conv).estilos_sugeridos){
+					getStorage(conv).estilos_sugeridos = suggestion;
 				}
 				else{
-					conv.user.storage.estilos_sugeridos += ',' + suggestion;
+					getStorage(conv).estilos_sugeridos += ',' + suggestion;
 				}
 			}
 			else{
-				if(!conv.user.storage.comidas_sugeridas){
-					conv.user.storage.comidas_sugeridas = suggestion;
+				if(!getStorage(conv).comidas_sugeridas){
+					getStorage(conv).comidas_sugeridas = suggestion;
 				}
 				else{
-					conv.user.storage.comidas_sugeridas += ',' + suggestion;
+					getStorage(conv).comidas_sugeridas += ',' + suggestion;
 				}
 			}
 
@@ -392,21 +440,21 @@ function requestPermission (conv) {
 function finishApp(conv){
 	let resposta = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(NON_PERM_ENDING));
 	//check if the user has already granted permission to save his info
-	if(conv.user.storage.userName){
-		resposta = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',conv.user.storage.userName));
+	if(getStorage(conv).userName){
+		resposta = buildSpeech(getRandomEntry(ACK) +  getRandomEntry(PERM_ENDING).replace('$1',getStorage(conv).userName));
 	}
 	conv.close(resposta);
 }
 
 function saveName(conv){
 
-	conv.user.storage.name = conv.user.name.given;
+	getStorage(conv).name = conv.user.name.given;
 }
 
 
 function setIBU(conv,bitterness){
 
-	let ibu = conv.user.storage.ibu;
+	let ibu = getStorage(conv).ibu;
 
 	if(bitterness === entities.BITT_MAIS){
 		ibu += IBU_INCREMENT;
@@ -421,12 +469,12 @@ function setIBU(conv,bitterness){
 		ibu -= (IBU_INCREMENT * 2);
 	}
 
-	conv.user.storage.ibu = ibu;
+	getStorage(conv).ibu = ibu;
 }
 
 function setSRM(conv, color){
 
-	let srm = conv.user.storage.srm;
+	let srm = getStorage(conv).srm;
 
 	if(color === entities.COLOR_ESCURA){
 		srm += SRM_INCREMENT;
@@ -441,12 +489,12 @@ function setSRM(conv, color){
 		srm -= (SRM_INCREMENT * 2);
 	}
 
-	conv.user.storage.srm = srm;
+	getStorage(conv).srm = srm;
 }
 
 function setAlcVol(conv, alcoholicVol){
 		
-	let teorA = conv.user.storage.teorA;
+	let teorA = getStorage(conv).teorA;
 
 	if(alcoholicVol === entities.ALC_VOL_ALTO){
 		teorA += TeorA_INCREMENT;
@@ -461,5 +509,5 @@ function setAlcVol(conv, alcoholicVol){
 		teorA -= (TeorA_INCREMENT * 2);
 	}
 
-	conv.user.storage.teorA  = teorA;
+	getStorage(conv).teorA  = teorA;
 }

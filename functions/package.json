@@ -1,7 +1,7 @@
 {
-  "name": "silly-name-maker",
-  "description": "Find out your silly name!",
-  "version": "0.0.1",
+  "name": "Cerveja com Que",
+  "description": "Harmonize sua cerveja",
+  "version": "2.0.0",
   "author": "Bruno Araújo",
   "engines": {
     "node": "~4.2"
@@ -14,7 +14,7 @@
     "logs": "firebase functions:log"
   },
   "dependencies": {
-    "actions-on-google": "^1.0.0",
+    "actions-on-google": "^2.0.0",
     "firebase": "^4.8.1",
     "firebase-admin": "~5.4.2",
     "firebase-functions": "^0.7.1"
